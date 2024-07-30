@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	"github.com/babylonchain/staking-queue-client/client"
-	"github.com/babylonchain/staking-queue-client/config"
-	"github.com/babylonchain/staking-queue-client/queuemngr"
+	"github.com/babylonlabs-io/staking-queue-client/client"
+	"github.com/babylonlabs-io/staking-queue-client/config"
+	"github.com/babylonlabs-io/staking-queue-client/queuemngr"
 )
 
 type TestServer struct {

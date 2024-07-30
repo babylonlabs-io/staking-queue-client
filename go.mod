@@ -1,4 +1,4 @@
-module github.com/babylonchain/staking-queue-client
+module github.com/babylonlabs-io/staking-queue-client
 
 go 1.21.6
 
