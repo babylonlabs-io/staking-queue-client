@@ -77,6 +77,21 @@ func (qc *QueueManager) Start() error {
 	return nil
 }
 
+func PushEvent[T any](qc *QueueManager, ev T) error {
+	jsonBytes, err := json.Marshal(ev)
+	if err != nil {
+		return err
+	}
+	messageBody := string(jsonBytes)
+
+	err = qc.StakingQueue.SendMessage(context.TODO(), messageBody)
+	if err != nil {
+		return fmt.Errorf("failed to push event: %w", err)
+	}
+
+	return nil
+}
+
 func (qc *QueueManager) PushStakingEvent(ev *client.ActiveStakingEvent) error {
 	jsonBytes, err := json.Marshal(ev)
 	if err != nil {

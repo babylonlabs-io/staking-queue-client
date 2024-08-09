@@ -10,6 +10,7 @@ import (
 
 	"github.com/babylonlabs-io/staking-queue-client/client"
 	"github.com/babylonlabs-io/staking-queue-client/config"
+	"github.com/babylonlabs-io/staking-queue-client/queuemngr"
 )
 
 const (
@@ -64,6 +65,54 @@ func TestPing(t *testing.T) {
 	err = queueManager.Ping()
 	require.Error(t, err, "Ping should return an error when any queue connection is closed")
 	require.Contains(t, err.Error(), "rabbitMQ connection is closed", "Error message should indicate which queue failed")
+}
+
+func TestSchemaVersionBackwardsCompatibility(t *testing.T) {
+	type oldActiveStakingEvent struct {
+		EventType             client.EventType `json:"event_type"`
+		StakingTxHashHex      string           `json:"staking_tx_hash_hex"`
+		StakerPkHex           string           `json:"staker_pk_hex"`
+		FinalityProviderPkHex string           `json:"finality_provider_pk_hex"`
+		StakingValue          uint64           `json:"staking_value"`
+		StakingStartHeight    uint64           `json:"staking_start_height"`
+		StakingStartTimestamp int64            `json:"staking_start_timestamp"`
+		StakingTimeLock       uint64           `json:"staking_timelock"`
+		StakingOutputIndex    uint64           `json:"staking_output_index"`
+		StakingTxHex          string           `json:"staking_tx_hex"`
+		IsOverflow            bool             `json:"is_overflow"`
+	}
+
+	event := &oldActiveStakingEvent{
+		EventType:             client.ActiveStakingEventType,
+		StakingTxHashHex:      "0x1234567890abcdef",
+		StakerPkHex:           "0x1234567890abcdef",
+		FinalityProviderPkHex: "0x1234567890abcdef",
+		StakingValue:          100,
+		StakingStartHeight:    100,
+		StakingStartTimestamp: 100,
+		StakingTimeLock:       100,
+		StakingOutputIndex:    100,
+		StakingTxHex:          "0x1234567890abcdef",
+		IsOverflow:            false,
+	}
+	queueCfg := config.DefaultQueueConfig()
+
+	testServer := setupTestQueueConsumer(t, queueCfg)
+	defer testServer.Stop(t)
+
+	queueManager := testServer.QueueManager
+	stakingEventReceivedChan, err := queueManager.StakingQueue.ReceiveMessages()
+	require.NoError(t, err)
+
+	err = queuemngr.PushEvent(queueManager, event)
+	require.NoError(t, err)
+	receivedEv := <-stakingEventReceivedChan
+	var stakingEv client.ActiveStakingEvent
+	err = json.Unmarshal([]byte(receivedEv.Body), &stakingEv)
+	require.NoError(t, err)
+	require.Equal(t, event.EventType, stakingEv.GetEventType())
+	require.Equal(t, event.StakingTxHashHex, stakingEv.GetStakingTxHashHex())
+	require.Equal(t, 0, stakingEv.SchemaVersion)
 }
 
 func TestStakingEvent(t *testing.T) {
