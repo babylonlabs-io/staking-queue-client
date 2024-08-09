@@ -20,14 +20,27 @@ const (
 	ConfirmedInfoEventType    EventType = 7
 )
 
+// Event schema versions, only increment when the schema changes
+const (
+	activeEventVersion        int = 0
+	unbondingEventVersion     int = 0
+	withdrawEventVersion      int = 0
+	expiredEventVersion       int = 0
+	statsEventVersion         int = 0
+	btcInfoEventVersion       int = 0
+	confirmedInfoEventVersion int = 0
+)
+
 type EventType int
 
 type EventMessage interface {
 	GetEventType() EventType
 	GetStakingTxHashHex() string
+	GetEventSchemaVersion() int
 }
 
 type ActiveStakingEvent struct {
+	SchemaVersion         int       `json:"schema_version"`
 	EventType             EventType `json:"event_type"` // always 1. ActiveStakingEventType
 	StakingTxHashHex      string    `json:"staking_tx_hash_hex"`
 	StakerPkHex           string    `json:"staker_pk_hex"`
@@ -49,6 +62,10 @@ func (e ActiveStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
+func (e ActiveStakingEvent) GetEventSchemaVersion() int {
+	return e.SchemaVersion
+}
+
 func NewActiveStakingEvent(
 	stakingTxHashHex string,
 	stakerPkHex string,
@@ -62,6 +79,7 @@ func NewActiveStakingEvent(
 	isOverflow bool,
 ) ActiveStakingEvent {
 	return ActiveStakingEvent{
+		SchemaVersion:         activeEventVersion,
 		EventType:             ActiveStakingEventType,
 		StakingTxHashHex:      stakingTxHashHex,
 		StakerPkHex:           stakerPkHex,
@@ -77,6 +95,7 @@ func NewActiveStakingEvent(
 }
 
 type UnbondingStakingEvent struct {
+	SchemaVersion           int       `json:"schema_version"`
 	EventType               EventType `json:"event_type"` // always 2. UnbondingStakingEventType
 	StakingTxHashHex        string    `json:"staking_tx_hash_hex"`
 	UnbondingStartHeight    uint64    `json:"unbonding_start_height"`
@@ -95,6 +114,10 @@ func (e UnbondingStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
+func (e UnbondingStakingEvent) GetEventSchemaVersion() int {
+	return e.SchemaVersion
+}
+
 func NewUnbondingStakingEvent(
 	stakingTxHashHex string,
 	unbondingStartHeight uint64,
@@ -105,6 +128,7 @@ func NewUnbondingStakingEvent(
 	unbondingTxHashHex string,
 ) UnbondingStakingEvent {
 	return UnbondingStakingEvent{
+		SchemaVersion:           unbondingEventVersion,
 		EventType:               UnbondingStakingEventType,
 		StakingTxHashHex:        stakingTxHashHex,
 		UnbondingStartHeight:    unbondingStartHeight,
@@ -117,6 +141,7 @@ func NewUnbondingStakingEvent(
 }
 
 type WithdrawStakingEvent struct {
+	SchemaVersion    int       `json:"schema_version"`
 	EventType        EventType `json:"event_type"` // always 3. WithdrawStakingEventType
 	StakingTxHashHex string    `json:"staking_tx_hash_hex"`
 }
@@ -129,14 +154,20 @@ func (e WithdrawStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
+func (e WithdrawStakingEvent) GetEventSchemaVersion() int {
+	return withdrawEventVersion
+}
+
 func NewWithdrawStakingEvent(stakingTxHashHex string) WithdrawStakingEvent {
 	return WithdrawStakingEvent{
+		SchemaVersion:    withdrawEventVersion,
 		EventType:        WithdrawStakingEventType,
 		StakingTxHashHex: stakingTxHashHex,
 	}
 }
 
 type ExpiredStakingEvent struct {
+	SchemaVersion    int       `json:"schema_version"`
 	EventType        EventType `json:"event_type"` // always 4. ExpiredStakingEventType
 	StakingTxHashHex string    `json:"staking_tx_hash_hex"`
 	TxType           string    `json:"tx_type"`
@@ -150,8 +181,13 @@ func (e ExpiredStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
+func (e ExpiredStakingEvent) GetEventSchemaVersion() int {
+	return expiredEventVersion
+}
+
 func NewExpiredStakingEvent(stakingTxHashHex string, txType string) ExpiredStakingEvent {
 	return ExpiredStakingEvent{
+		SchemaVersion:    expiredEventVersion,
 		EventType:        ExpiredStakingEventType,
 		StakingTxHashHex: stakingTxHashHex,
 		TxType:           txType,
@@ -159,6 +195,7 @@ func NewExpiredStakingEvent(stakingTxHashHex string, txType string) ExpiredStaki
 }
 
 type StatsEvent struct {
+	SchemaVersion         int       `json:"schema_version"`
 	EventType             EventType `json:"event_type"` // always 5. StatsEventType
 	StakingTxHashHex      string    `json:"staking_tx_hash_hex"`
 	StakerPkHex           string    `json:"staker_pk_hex"`
@@ -175,6 +212,10 @@ func (e StatsEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
+func (e StatsEvent) GetEventSchemaVersion() int {
+	return statsEventVersion
+}
+
 func NewStatsEvent(
 	stakingTxHashHex string,
 	stakerPkHex string,
@@ -183,6 +224,7 @@ func NewStatsEvent(
 	state string,
 ) StatsEvent {
 	return StatsEvent{
+		SchemaVersion:         statsEventVersion,
 		EventType:             StatsEventType,
 		StakingTxHashHex:      stakingTxHashHex,
 		StakerPkHex:           stakerPkHex,
@@ -193,6 +235,7 @@ func NewStatsEvent(
 }
 
 type BtcInfoEvent struct {
+	SchemaVersion  int       `json:"schema_version"`
 	EventType      EventType `json:"event_type"` // always 6. BtcInfoEventType
 	Height         uint64    `json:"height"`
 	ConfirmedTvl   uint64    `json:"confirmed_tvl"`
@@ -208,8 +251,13 @@ func (e BtcInfoEvent) GetStakingTxHashHex() string {
 	return ""
 }
 
+func (e BtcInfoEvent) GetEventSchemaVersion() int {
+	return btcInfoEventVersion
+}
+
 func NewBtcInfoEvent(height, confirmedTvl, unconfirmedTvl uint64) BtcInfoEvent {
 	return BtcInfoEvent{
+		SchemaVersion:  btcInfoEventVersion,
 		EventType:      BtcInfoEventType,
 		Height:         height,
 		ConfirmedTvl:   confirmedTvl,
@@ -218,9 +266,10 @@ func NewBtcInfoEvent(height, confirmedTvl, unconfirmedTvl uint64) BtcInfoEvent {
 }
 
 type ConfirmedInfoEvent struct {
-	EventType EventType `json:"event_type"` // always 7. ConfirmedInfoEventType
-	Height    uint64    `json:"height"`
-	Tvl       uint64    `json:"tvl"`
+	SchemaVersion int       `json:"schema_version"`
+	EventType     EventType `json:"event_type"` // always 7. ConfirmedInfoEventType
+	Height        uint64    `json:"height"`
+	Tvl           uint64    `json:"tvl"`
 }
 
 func (e ConfirmedInfoEvent) GetEventType() EventType {
@@ -232,10 +281,15 @@ func (e ConfirmedInfoEvent) GetStakingTxHashHex() string {
 	return ""
 }
 
+func (e ConfirmedInfoEvent) GetEventSchemaVersion() int {
+	return confirmedInfoEventVersion
+}
+
 func NewConfirmedInfoEvent(height, tvl uint64) ConfirmedInfoEvent {
 	return ConfirmedInfoEvent{
-		EventType: ConfirmedInfoEventType,
-		Height:    height,
-		Tvl:       tvl,
+		SchemaVersion: confirmedInfoEventVersion,
+		EventType:     ConfirmedInfoEventType,
+		Height:        height,
+		Tvl:           tvl,
 	}
 }

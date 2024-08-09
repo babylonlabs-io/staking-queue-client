@@ -88,6 +88,7 @@ func TestStakingEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &stakingEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &stakingEv)
+		require.Equal(t, 0, stakingEv.GetEventSchemaVersion())
 	}
 }
 
@@ -113,6 +114,7 @@ func TestUnbondingEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &unbondingEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &unbondingEv)
+		require.Equal(t, 0, unbondingEv.GetEventSchemaVersion())
 	}
 }
 
@@ -138,6 +140,7 @@ func TestWithdrawEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &withdrawEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &withdrawEv)
+		require.Equal(t, 0, withdrawEv.GetEventSchemaVersion())
 	}
 }
 
@@ -163,6 +166,7 @@ func TestExpiryEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &expiryEvent)
 		require.NoError(t, err)
 		require.Equal(t, ev, &expiryEvent)
+		require.Equal(t, 0, expiryEvent.GetEventSchemaVersion())
 	}
 }
 
@@ -188,6 +192,7 @@ func TestBtcInfoEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &BtcInfoEvent)
 		require.NoError(t, err)
 		require.Equal(t, ev, &BtcInfoEvent)
+		require.Equal(t, 0, BtcInfoEvent.GetEventSchemaVersion())
 	}
 }
 
@@ -213,6 +218,7 @@ func TestConfirmedInfoEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &confirmedInfoEvent)
 		require.NoError(t, err)
 		require.Equal(t, ev, &confirmedInfoEvent)
+		require.Equal(t, 0, confirmedInfoEvent.GetEventSchemaVersion())
 	}
 }
 
