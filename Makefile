@@ -17,8 +17,8 @@ endif
 BUILD_TARGETS := build install
 BUILD_FLAGS := --tags "$(build_tags)" --ldflags '$(ldflags)'
 
-.PHONY: tests
+.PHONY: test
 
-tests:
+test:
 	./bin/local-startup.sh;
 	go test -v ./...
