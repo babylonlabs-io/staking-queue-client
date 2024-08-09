@@ -22,13 +22,13 @@ const (
 
 // Event schema versions, only increment when the schema changes
 const (
-	activeEventVersion        int = 0
-	unbondingEventVersion     int = 0
-	withdrawEventVersion      int = 0
-	expiredEventVersion       int = 0
-	statsEventVersion         int = 0
-	btcInfoEventVersion       int = 0
-	confirmedInfoEventVersion int = 0
+	ActiveEventVersion        int = 0
+	UnbondingEventVersion     int = 0
+	WithdrawEventVersion      int = 0
+	ExpiredEventVersion       int = 0
+	StatsEventVersion         int = 1
+	BtcInfoEventVersion       int = 0
+	ConfirmedInfoEventVersion int = 0
 )
 
 type EventType int
@@ -74,7 +74,7 @@ func NewActiveStakingEvent(
 	isOverflow bool,
 ) ActiveStakingEvent {
 	return ActiveStakingEvent{
-		SchemaVersion:         activeEventVersion,
+		SchemaVersion:         ActiveEventVersion,
 		EventType:             ActiveStakingEventType,
 		StakingTxHashHex:      stakingTxHashHex,
 		StakerPkHex:           stakerPkHex,
@@ -119,7 +119,7 @@ func NewUnbondingStakingEvent(
 	unbondingTxHashHex string,
 ) UnbondingStakingEvent {
 	return UnbondingStakingEvent{
-		SchemaVersion:           unbondingEventVersion,
+		SchemaVersion:           UnbondingEventVersion,
 		EventType:               UnbondingStakingEventType,
 		StakingTxHashHex:        stakingTxHashHex,
 		UnbondingStartHeight:    unbondingStartHeight,
@@ -147,7 +147,7 @@ func (e WithdrawStakingEvent) GetStakingTxHashHex() string {
 
 func NewWithdrawStakingEvent(stakingTxHashHex string) WithdrawStakingEvent {
 	return WithdrawStakingEvent{
-		SchemaVersion:    withdrawEventVersion,
+		SchemaVersion:    WithdrawEventVersion,
 		EventType:        WithdrawStakingEventType,
 		StakingTxHashHex: stakingTxHashHex,
 	}
@@ -170,7 +170,7 @@ func (e ExpiredStakingEvent) GetStakingTxHashHex() string {
 
 func NewExpiredStakingEvent(stakingTxHashHex string, txType string) ExpiredStakingEvent {
 	return ExpiredStakingEvent{
-		SchemaVersion:    expiredEventVersion,
+		SchemaVersion:    ExpiredEventVersion,
 		EventType:        ExpiredStakingEventType,
 		StakingTxHashHex: stakingTxHashHex,
 		TxType:           txType,
@@ -185,6 +185,7 @@ type StatsEvent struct {
 	FinalityProviderPkHex string    `json:"finality_provider_pk_hex"`
 	StakingValue          uint64    `json:"staking_value"`
 	State                 string    `json:"state"`
+	IsOverflow            bool      `json:"is_overflow"`
 }
 
 func (e StatsEvent) GetEventType() EventType {
@@ -201,15 +202,17 @@ func NewStatsEvent(
 	finalityProviderPkHex string,
 	stakingValue uint64,
 	state string,
+	isOverflow bool,
 ) StatsEvent {
 	return StatsEvent{
-		SchemaVersion:         statsEventVersion,
+		SchemaVersion:         StatsEventVersion,
 		EventType:             StatsEventType,
 		StakingTxHashHex:      stakingTxHashHex,
 		StakerPkHex:           stakerPkHex,
 		FinalityProviderPkHex: finalityProviderPkHex,
 		StakingValue:          stakingValue,
 		State:                 state,
+		IsOverflow:            isOverflow,
 	}
 }
 
@@ -232,7 +235,7 @@ func (e BtcInfoEvent) GetStakingTxHashHex() string {
 
 func NewBtcInfoEvent(height, confirmedTvl, unconfirmedTvl uint64) BtcInfoEvent {
 	return BtcInfoEvent{
-		SchemaVersion:  btcInfoEventVersion,
+		SchemaVersion:  BtcInfoEventVersion,
 		EventType:      BtcInfoEventType,
 		Height:         height,
 		ConfirmedTvl:   confirmedTvl,
@@ -258,7 +261,7 @@ func (e ConfirmedInfoEvent) GetStakingTxHashHex() string {
 
 func NewConfirmedInfoEvent(height, tvl uint64) ConfirmedInfoEvent {
 	return ConfirmedInfoEvent{
-		SchemaVersion: confirmedInfoEventVersion,
+		SchemaVersion: ConfirmedInfoEventVersion,
 		EventType:     ConfirmedInfoEventType,
 		Height:        height,
 		Tvl:           tvl,

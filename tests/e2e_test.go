@@ -104,7 +104,7 @@ func TestSchemaVersionBackwardsCompatibility(t *testing.T) {
 	stakingEventReceivedChan, err := queueManager.StakingQueue.ReceiveMessages()
 	require.NoError(t, err)
 
-	err = queuemngr.PushEvent(queueManager, event)
+	err = queuemngr.PushEvent(queueManager.StakingQueue, event)
 	require.NoError(t, err)
 	receivedEv := <-stakingEventReceivedChan
 	var stakingEv client.ActiveStakingEvent
@@ -190,6 +190,32 @@ func TestWithdrawEvent(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, ev, &withdrawEv)
 		require.Equal(t, 0, withdrawEv.SchemaVersion)
+	}
+}
+
+func TestStatsEvent(t *testing.T) {
+	numEvents := 3
+	statsEvents := buildNStatsEvents(mockStakerHash, numEvents)
+	queueCfg := config.DefaultQueueConfig()
+
+	testServer := setupTestQueueConsumer(t, queueCfg)
+	defer testServer.Stop(t)
+
+	queueManager := testServer.QueueManager
+
+	eventReceivedChan, err := queueManager.StatsQueue.ReceiveMessages()
+	require.NoError(t, err)
+
+	for _, ev := range statsEvents {
+		err = queuemngr.PushEvent(queueManager.StatsQueue, ev)
+		require.NoError(t, err)
+
+		receivedEv := <-eventReceivedChan
+		var statsEv client.StatsEvent
+		err := json.Unmarshal([]byte(receivedEv.Body), &statsEv)
+		require.NoError(t, err)
+		require.Equal(t, ev, &statsEv)
+		require.Equal(t, 1, statsEv.SchemaVersion)
 	}
 }
 

@@ -149,6 +149,23 @@ func buildNExpiryEvents(numOfEvent int) []*client.ExpiredStakingEvent {
 	return expiryEvents
 }
 
+func buildNStatsEvents(stakerHash string, numOfEvent int) []*client.StatsEvent {
+	var statsEvents []*client.StatsEvent
+	for i := 0; i < numOfEvent; i++ {
+		activeStakingEvent := client.NewStatsEvent(
+			"0x1234567890abcdef"+fmt.Sprint(i),
+			stakerHash,
+			"0xabcdef1234567890"+fmt.Sprint(i),
+			1+uint64(i),
+			"active",
+			false,
+		)
+
+		statsEvents = append(statsEvents, &activeStakingEvent)
+	}
+	return statsEvents
+}
+
 func buildNBtcInfoEvents(numOfEvent int) []*client.BtcInfoEvent {
 	var btcInfoEvents []*client.BtcInfoEvent
 	for i := 0; i < numOfEvent; i++ {
