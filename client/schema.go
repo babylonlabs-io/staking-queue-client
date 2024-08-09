@@ -36,7 +36,6 @@ type EventType int
 type EventMessage interface {
 	GetEventType() EventType
 	GetStakingTxHashHex() string
-	GetEventSchemaVersion() int
 }
 
 type ActiveStakingEvent struct {
@@ -60,10 +59,6 @@ func (e ActiveStakingEvent) GetEventType() EventType {
 
 func (e ActiveStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
-}
-
-func (e ActiveStakingEvent) GetEventSchemaVersion() int {
-	return e.SchemaVersion
 }
 
 func NewActiveStakingEvent(
@@ -114,10 +109,6 @@ func (e UnbondingStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
-func (e UnbondingStakingEvent) GetEventSchemaVersion() int {
-	return e.SchemaVersion
-}
-
 func NewUnbondingStakingEvent(
 	stakingTxHashHex string,
 	unbondingStartHeight uint64,
@@ -154,10 +145,6 @@ func (e WithdrawStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
-func (e WithdrawStakingEvent) GetEventSchemaVersion() int {
-	return withdrawEventVersion
-}
-
 func NewWithdrawStakingEvent(stakingTxHashHex string) WithdrawStakingEvent {
 	return WithdrawStakingEvent{
 		SchemaVersion:    withdrawEventVersion,
@@ -179,10 +166,6 @@ func (e ExpiredStakingEvent) GetEventType() EventType {
 
 func (e ExpiredStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
-}
-
-func (e ExpiredStakingEvent) GetEventSchemaVersion() int {
-	return expiredEventVersion
 }
 
 func NewExpiredStakingEvent(stakingTxHashHex string, txType string) ExpiredStakingEvent {
@@ -210,10 +193,6 @@ func (e StatsEvent) GetEventType() EventType {
 
 func (e StatsEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
-}
-
-func (e StatsEvent) GetEventSchemaVersion() int {
-	return statsEventVersion
 }
 
 func NewStatsEvent(
@@ -251,10 +230,6 @@ func (e BtcInfoEvent) GetStakingTxHashHex() string {
 	return ""
 }
 
-func (e BtcInfoEvent) GetEventSchemaVersion() int {
-	return btcInfoEventVersion
-}
-
 func NewBtcInfoEvent(height, confirmedTvl, unconfirmedTvl uint64) BtcInfoEvent {
 	return BtcInfoEvent{
 		SchemaVersion:  btcInfoEventVersion,
@@ -279,10 +254,6 @@ func (e ConfirmedInfoEvent) GetEventType() EventType {
 // Not applicable, add it here to implement the EventMessage interface
 func (e ConfirmedInfoEvent) GetStakingTxHashHex() string {
 	return ""
-}
-
-func (e ConfirmedInfoEvent) GetEventSchemaVersion() int {
-	return confirmedInfoEventVersion
 }
 
 func NewConfirmedInfoEvent(height, tvl uint64) ConfirmedInfoEvent {
