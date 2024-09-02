@@ -189,7 +189,10 @@ func TestWithdrawEvent(t *testing.T) {
 		err := json.Unmarshal([]byte(receivedEv.Body), &withdrawEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &withdrawEv)
-		require.Equal(t, 0, withdrawEv.SchemaVersion)
+		require.Equal(t, 1, withdrawEv.SchemaVersion)
+		require.NotZero(t, withdrawEv.WithdrawTxBtcHeight)
+		require.NotEmpty(t, withdrawEv.WithdrawTxHashHex)
+		require.NotEmpty(t, withdrawEv.WithdrawTxHex)
 	}
 }
 

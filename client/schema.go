@@ -24,7 +24,7 @@ const (
 const (
 	ActiveEventVersion        int = 0
 	UnbondingEventVersion     int = 0
-	WithdrawEventVersion      int = 0
+	WithdrawEventVersion      int = 1
 	ExpiredEventVersion       int = 0
 	StatsEventVersion         int = 1
 	BtcInfoEventVersion       int = 0
@@ -132,9 +132,12 @@ func NewUnbondingStakingEvent(
 }
 
 type WithdrawStakingEvent struct {
-	SchemaVersion    int       `json:"schema_version"`
-	EventType        EventType `json:"event_type"` // always 3. WithdrawStakingEventType
-	StakingTxHashHex string    `json:"staking_tx_hash_hex"`
+	SchemaVersion       int       `json:"schema_version"`
+	EventType           EventType `json:"event_type"` // always 3. WithdrawStakingEventType
+	StakingTxHashHex    string    `json:"staking_tx_hash_hex"`
+	WithdrawTxHashHex   string    `json:"withdraw_tx_hash_hex"`
+	WithdrawTxBtcHeight uint64    `json:"withdraw_tx_btc_height"`
+	WithdrawTxHex       string    `json:"withdraw_tx_hex"`
 }
 
 func (e WithdrawStakingEvent) GetEventType() EventType {
@@ -145,11 +148,19 @@ func (e WithdrawStakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
-func NewWithdrawStakingEvent(stakingTxHashHex string) WithdrawStakingEvent {
+func NewWithdrawStakingEvent(
+	stakingTxHashHex string,
+	withdrawTxHashHex string,
+	withdrawTxBtcHeight uint64,
+	withdrawTxHex string,
+) WithdrawStakingEvent {
 	return WithdrawStakingEvent{
-		SchemaVersion:    WithdrawEventVersion,
-		EventType:        WithdrawStakingEventType,
-		StakingTxHashHex: stakingTxHashHex,
+		SchemaVersion:       WithdrawEventVersion,
+		EventType:           WithdrawStakingEventType,
+		StakingTxHashHex:    stakingTxHashHex,
+		WithdrawTxHashHex:   withdrawTxHashHex,
+		WithdrawTxBtcHeight: withdrawTxBtcHeight,
+		WithdrawTxHex:       withdrawTxHex,
 	}
 }
 

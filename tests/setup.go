@@ -127,7 +127,10 @@ func buildNWithdrawEvents(numOfEvent int) []*client.WithdrawStakingEvent {
 	var withdrawEvents []*client.WithdrawStakingEvent
 	for i := 0; i < numOfEvent; i++ {
 		withdrawEv := client.NewWithdrawStakingEvent(
-			"0x1234567890abcdef" + fmt.Sprint(i),
+			"0x1234567890abcdef"+fmt.Sprint(i),
+			"0xabcdef1234567890"+fmt.Sprint(i),
+			100+uint64(i),
+			"0xghijkl1234567890"+fmt.Sprint(i),
 		)
 		withdrawEvents = append(withdrawEvents, &withdrawEv)
 	}
