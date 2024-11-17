@@ -90,7 +90,7 @@ func buildActiveNStakingEvents(stakerHash string, numOfEvent int) []*client.Acti
 		activeStakingEvent := client.NewActiveStakingEvent(
 			"0x1234567890abcdef"+fmt.Sprint(i),
 			stakerHash,
-			"0xabcdef1234567890"+fmt.Sprint(i),
+			[]string{"0xabcdef1234567890" + fmt.Sprint(i)},
 			1+uint64(i),
 			100+uint64(i),
 			time.Now().Unix(),

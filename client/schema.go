@@ -8,6 +8,8 @@ const (
 	StakingStatsQueueName     string = "staking_stats_queue"
 	BtcInfoQueueName          string = "btc_info_queue"
 	ConfirmedInfoQueueName    string = "confirmed_info_queue"
+	VerifiedStakingQueueName  string = "verified_staking_queue"
+	PendingStakingQueueName   string = "pending_staking_queue"
 )
 
 const (
@@ -18,6 +20,8 @@ const (
 	StatsEventType            EventType = 5
 	BtcInfoEventType          EventType = 6
 	ConfirmedInfoEventType    EventType = 7
+	VerifiedStakingEventType  EventType = 8
+	PendingStakingEventType   EventType = 9
 )
 
 // Event schema versions, only increment when the schema changes
@@ -29,6 +33,8 @@ const (
 	StatsEventVersion         int = 1
 	BtcInfoEventVersion       int = 0
 	ConfirmedInfoEventVersion int = 0
+	VerifiedEventVersion      int = 0
+	PendingEventVersion       int = 0
 )
 
 type EventType int
@@ -39,18 +45,18 @@ type EventMessage interface {
 }
 
 type ActiveStakingEvent struct {
-	SchemaVersion         int       `json:"schema_version"`
-	EventType             EventType `json:"event_type"` // always 1. ActiveStakingEventType
-	StakingTxHashHex      string    `json:"staking_tx_hash_hex"`
-	StakerPkHex           string    `json:"staker_pk_hex"`
-	FinalityProviderPkHex string    `json:"finality_provider_pk_hex"`
-	StakingValue          uint64    `json:"staking_value"`
-	StakingStartHeight    uint64    `json:"staking_start_height"`
-	StakingStartTimestamp int64     `json:"staking_start_timestamp"`
-	StakingTimeLock       uint64    `json:"staking_timelock"`
-	StakingOutputIndex    uint64    `json:"staking_output_index"`
-	StakingTxHex          string    `json:"staking_tx_hex"`
-	IsOverflow            bool      `json:"is_overflow"`
+	SchemaVersion             int       `json:"schema_version"`
+	EventType                 EventType `json:"event_type"` // always 1. ActiveStakingEventType
+	StakingTxHashHex          string    `json:"staking_tx_hash_hex"`
+	StakerBtcPkHex            string    `json:"staker_btc_pk_hex"`
+	FinalityProviderBtcPksHex []string  `json:"finality_provider_btc_pks_hex"`
+	StakingValue              uint64    `json:"staking_value"`
+	StakingStartHeight        uint64    `json:"staking_start_height"`
+	StakingStartTimestamp     int64     `json:"staking_start_timestamp"`
+	StakingTimeLock           uint64    `json:"staking_timelock"`
+	StakingOutputIndex        uint64    `json:"staking_output_index"`
+	StakingTxHex              string    `json:"staking_tx_hex"`
+	IsOverflow                bool      `json:"is_overflow"`
 }
 
 func (e ActiveStakingEvent) GetEventType() EventType {
@@ -63,8 +69,8 @@ func (e ActiveStakingEvent) GetStakingTxHashHex() string {
 
 func NewActiveStakingEvent(
 	stakingTxHashHex string,
-	stakerPkHex string,
-	finalityProviderPkHex string,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
 	stakingValue uint64,
 	stakingStartHeight uint64,
 	stakingStartTimestamp int64,
@@ -74,18 +80,18 @@ func NewActiveStakingEvent(
 	isOverflow bool,
 ) ActiveStakingEvent {
 	return ActiveStakingEvent{
-		SchemaVersion:         ActiveEventVersion,
-		EventType:             ActiveStakingEventType,
-		StakingTxHashHex:      stakingTxHashHex,
-		StakerPkHex:           stakerPkHex,
-		FinalityProviderPkHex: finalityProviderPkHex,
-		StakingValue:          stakingValue,
-		StakingStartHeight:    stakingStartHeight,
-		StakingStartTimestamp: stakingStartTimestamp,
-		StakingTimeLock:       stakingTimeLock,
-		StakingOutputIndex:    stakingOutputIndex,
-		StakingTxHex:          stakingTxHex,
-		IsOverflow:            isOverflow,
+		SchemaVersion:             ActiveEventVersion,
+		EventType:                 ActiveStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingValue:              stakingValue,
+		StakingStartHeight:        stakingStartHeight,
+		StakingStartTimestamp:     stakingStartTimestamp,
+		StakingTimeLock:           stakingTimeLock,
+		StakingOutputIndex:        stakingOutputIndex,
+		StakingTxHex:              stakingTxHex,
+		IsOverflow:                isOverflow,
 	}
 }
 
@@ -276,5 +282,49 @@ func NewConfirmedInfoEvent(height, tvl uint64) ConfirmedInfoEvent {
 		EventType:     ConfirmedInfoEventType,
 		Height:        height,
 		Tvl:           tvl,
+	}
+}
+
+type VerifiedStakingEvent struct {
+	SchemaVersion    int       `json:"schema_version"`
+	EventType        EventType `json:"event_type"` // always 8. VerifiedStakingEventType
+	StakingTxHashHex string    `json:"staking_tx_hash_hex"`
+}
+
+func (e VerifiedStakingEvent) GetEventType() EventType {
+	return VerifiedStakingEventType
+}
+
+func (e VerifiedStakingEvent) GetStakingTxHashHex() string {
+	return e.StakingTxHashHex
+}
+
+func NewVerifiedStakingEvent(stakingTxHashHex string) VerifiedStakingEvent {
+	return VerifiedStakingEvent{
+		SchemaVersion:    VerifiedEventVersion,
+		EventType:        VerifiedStakingEventType,
+		StakingTxHashHex: stakingTxHashHex,
+	}
+}
+
+type PendingStakingEvent struct {
+	SchemaVersion    int       `json:"schema_version"`
+	EventType        EventType `json:"event_type"` // always 9. PendingStakingEventType
+	StakingTxHashHex string    `json:"staking_tx_hash_hex"`
+}
+
+func (e PendingStakingEvent) GetEventType() EventType {
+	return PendingStakingEventType
+}
+
+func (e PendingStakingEvent) GetStakingTxHashHex() string {
+	return e.StakingTxHashHex
+}
+
+func NewPendingStakingEvent(stakingTxHashHex string) PendingStakingEvent {
+	return PendingStakingEvent{
+		SchemaVersion:    PendingEventVersion,
+		EventType:        PendingStakingEventType,
+		StakingTxHashHex: stakingTxHashHex,
 	}
 }
