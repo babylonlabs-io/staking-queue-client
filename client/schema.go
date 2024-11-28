@@ -38,96 +38,52 @@ type EventMessage interface {
 	GetStakingTxHashHex() string
 }
 
-type ActiveStakingEvent struct {
-	SchemaVersion         int       `json:"schema_version"`
-	EventType             EventType `json:"event_type"` // always 1. ActiveStakingEventType
-	StakingTxHashHex      string    `json:"staking_tx_hash_hex"`
-	StakerPkHex           string    `json:"staker_pk_hex"`
-	FinalityProviderPkHex string    `json:"finality_provider_pk_hex"`
-	StakingValue          uint64    `json:"staking_value"`
-	StakingStartHeight    uint64    `json:"staking_start_height"`
-	StakingStartTimestamp int64     `json:"staking_start_timestamp"`
-	StakingTimeLock       uint64    `json:"staking_timelock"`
-	StakingOutputIndex    uint64    `json:"staking_output_index"`
-	StakingTxHex          string    `json:"staking_tx_hex"`
-	IsOverflow            bool      `json:"is_overflow"`
-}
-
-func (e ActiveStakingEvent) GetEventType() EventType {
-	return ActiveStakingEventType
-}
-
-func (e ActiveStakingEvent) GetStakingTxHashHex() string {
-	return e.StakingTxHashHex
+type StakingEvent struct {
+	SchemaVersion             int       `json:"schema_version"`
+	EventType                 EventType `json:"event_type"`
+	StakingTxHashHex          string    `json:"staking_tx_hash_hex"`
+	StakerBtcPkHex            string    `json:"staker_btc_pk_hex"`
+	FinalityProviderBtcPksHex []string  `json:"finality_provider_btc_pks_hex"`
+	StakingAmount             uint64    `json:"staking_amount"`
 }
 
 func NewActiveStakingEvent(
 	stakingTxHashHex string,
-	stakerPkHex string,
-	finalityProviderPkHex string,
-	stakingValue uint64,
-	stakingStartHeight uint64,
-	stakingStartTimestamp int64,
-	stakingTimeLock uint64,
-	stakingOutputIndex uint64,
-	stakingTxHex string,
-	isOverflow bool,
-) ActiveStakingEvent {
-	return ActiveStakingEvent{
-		SchemaVersion:         ActiveEventVersion,
-		EventType:             ActiveStakingEventType,
-		StakingTxHashHex:      stakingTxHashHex,
-		StakerPkHex:           stakerPkHex,
-		FinalityProviderPkHex: finalityProviderPkHex,
-		StakingValue:          stakingValue,
-		StakingStartHeight:    stakingStartHeight,
-		StakingStartTimestamp: stakingStartTimestamp,
-		StakingTimeLock:       stakingTimeLock,
-		StakingOutputIndex:    stakingOutputIndex,
-		StakingTxHex:          stakingTxHex,
-		IsOverflow:            isOverflow,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
+	stakingAmount uint64,
+) StakingEvent {
+	return StakingEvent{
+		SchemaVersion:             ActiveEventVersion,
+		EventType:                 ActiveStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingAmount:             stakingAmount,
 	}
 }
 
-type UnbondingStakingEvent struct {
-	SchemaVersion           int       `json:"schema_version"`
-	EventType               EventType `json:"event_type"` // always 2. UnbondingStakingEventType
-	StakingTxHashHex        string    `json:"staking_tx_hash_hex"`
-	UnbondingStartHeight    uint64    `json:"unbonding_start_height"`
-	UnbondingStartTimestamp int64     `json:"unbonding_start_timestamp"`
-	UnbondingTimeLock       uint64    `json:"unbonding_timelock"`
-	UnbondingOutputIndex    uint64    `json:"unbonding_output_index"`
-	UnbondingTxHex          string    `json:"unbonding_tx_hex"`
-	UnbondingTxHashHex      string    `json:"unbonding_tx_hash_hex"`
+func (e StakingEvent) GetEventType() EventType {
+	return ActiveStakingEventType
 }
 
-func (e UnbondingStakingEvent) GetEventType() EventType {
-	return UnbondingStakingEventType
-}
-
-func (e UnbondingStakingEvent) GetStakingTxHashHex() string {
+func (e StakingEvent) GetStakingTxHashHex() string {
 	return e.StakingTxHashHex
 }
 
 func NewUnbondingStakingEvent(
 	stakingTxHashHex string,
-	unbondingStartHeight uint64,
-	unbondingStartTimestamp int64,
-	unbondingTimeLock uint64,
-	unbondingOutputIndex uint64,
-	unbondingTxHex string,
-	unbondingTxHashHex string,
-) UnbondingStakingEvent {
-	return UnbondingStakingEvent{
-		SchemaVersion:           UnbondingEventVersion,
-		EventType:               UnbondingStakingEventType,
-		StakingTxHashHex:        stakingTxHashHex,
-		UnbondingStartHeight:    unbondingStartHeight,
-		UnbondingStartTimestamp: unbondingStartTimestamp,
-		UnbondingTimeLock:       unbondingTimeLock,
-		UnbondingOutputIndex:    unbondingOutputIndex,
-		UnbondingTxHex:          unbondingTxHex,
-		UnbondingTxHashHex:      unbondingTxHashHex,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
+	stakingAmount uint64,
+) StakingEvent {
+	return StakingEvent{
+		SchemaVersion:             UnbondingEventVersion,
+		EventType:                 UnbondingStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingAmount:             stakingAmount,
 	}
 }
 

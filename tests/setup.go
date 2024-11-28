@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/stretchr/testify/require"
@@ -84,20 +83,14 @@ func purgeQueues(conn *amqp091.Connection, queues []string) error {
 	return nil
 }
 
-func buildActiveNStakingEvents(stakerHash string, numOfEvent int) []*client.ActiveStakingEvent {
-	var activeStakingEvents []*client.ActiveStakingEvent
+func buildActiveNStakingEvents(stakerHash string, numOfEvent int) []*client.StakingEvent {
+	var activeStakingEvents []*client.StakingEvent
 	for i := 0; i < numOfEvent; i++ {
 		activeStakingEvent := client.NewActiveStakingEvent(
 			"0x1234567890abcdef"+fmt.Sprint(i),
 			stakerHash,
-			"0xabcdef1234567890"+fmt.Sprint(i),
+			[]string{"0xabcdef1234567890" + fmt.Sprint(i)},
 			1+uint64(i),
-			100+uint64(i),
-			time.Now().Unix(),
-			200+uint64(i),
-			1+uint64(i),
-			"0xabcdef1234567890"+fmt.Sprint(i),
-			false,
 		)
 
 		activeStakingEvents = append(activeStakingEvents, &activeStakingEvent)
@@ -105,17 +98,14 @@ func buildActiveNStakingEvents(stakerHash string, numOfEvent int) []*client.Acti
 	return activeStakingEvents
 }
 
-func buildNUnbondingEvents(numOfEvent int) []*client.UnbondingStakingEvent {
-	var unbondingEvents []*client.UnbondingStakingEvent
+func buildNUnbondingEvents(numOfEvent int) []*client.StakingEvent {
+	var unbondingEvents []*client.StakingEvent
 	for i := 0; i < numOfEvent; i++ {
 		unbondingEv := client.NewUnbondingStakingEvent(
 			"0x1234567890abcdef"+fmt.Sprint(i),
-			uint64(i),
-			time.Now().Unix(),
-			200+uint64(i),
-			uint64(0),
 			"0xabcdef1234567890"+fmt.Sprint(i),
-			"0x1234567890abcdef"+fmt.Sprint(i),
+			[]string{"0x1234567890abcdef" + fmt.Sprint(i)},
+			200+uint64(i),
 		)
 		unbondingEvents = append(unbondingEvents, &unbondingEv)
 	}
