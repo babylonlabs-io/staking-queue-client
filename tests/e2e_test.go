@@ -107,7 +107,7 @@ func TestSchemaVersionBackwardsCompatibility(t *testing.T) {
 	err = queuemngr.PushEvent(queueManager.StakingQueue, event)
 	require.NoError(t, err)
 	receivedEv := <-stakingEventReceivedChan
-	var stakingEv client.StakingEvent
+	var stakingEv client.ActiveStakingEvent
 	err = json.Unmarshal([]byte(receivedEv.Body), &stakingEv)
 	require.NoError(t, err)
 	require.Equal(t, event.EventType, stakingEv.GetEventType())
@@ -133,7 +133,7 @@ func TestStakingEvent(t *testing.T) {
 		require.NoError(t, err)
 
 		receivedEv := <-stakingEventReceivedChan
-		var stakingEv client.StakingEvent
+		var stakingEv client.ActiveStakingEvent
 		err := json.Unmarshal([]byte(receivedEv.Body), &stakingEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &stakingEv)
@@ -159,7 +159,7 @@ func TestUnbondingEvent(t *testing.T) {
 		require.NoError(t, err)
 
 		receivedEv := <-unbondingEvReceivedChan
-		var unbondingEv client.StakingEvent
+		var unbondingEv client.UnbondingStakingEvent
 		err := json.Unmarshal([]byte(receivedEv.Body), &unbondingEv)
 		require.NoError(t, err)
 		require.Equal(t, ev, &unbondingEv)
@@ -324,7 +324,7 @@ func TestReQueueEvent(t *testing.T) {
 		t.Fatal("timeout waiting for staking event")
 	}
 
-	var stakingEv client.StakingEvent
+	var stakingEv client.ActiveStakingEvent
 	err = json.Unmarshal([]byte(receivedEv.Body), &stakingEv)
 	require.NoError(t, err)
 	require.Equal(t, ev, &stakingEv)
