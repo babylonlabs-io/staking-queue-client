@@ -108,7 +108,7 @@ func NewRabbitMqClient(config *config.QueueConfig, queueName string) (*RabbitMqC
 		channel:            ch,
 		queueName:          queueName,
 		stopCh:             make(chan struct{}),
-		delayedRequeueTime: time.Duration(config.ReQueueDelayTime) * time.Second,
+		delayedRequeueTime: config.ReQueueDelayTime,
 	}, nil
 }
 
