@@ -278,3 +278,52 @@ func NewConfirmedInfoEvent(height, tvl uint64) ConfirmedInfoEvent {
 		Tvl:           tvl,
 	}
 }
+
+type StakingEvent struct {
+	SchemaVersion             int       `json:"schema_version"`
+	EventType                 EventType `json:"event_type"`
+	StakingTxHashHex          string    `json:"staking_tx_hash_hex"`
+	StakerBtcPkHex            string    `json:"staker_btc_pk_hex"`
+	FinalityProviderBtcPksHex []string  `json:"finality_provider_btc_pks_hex"`
+	StakingAmount             uint64    `json:"staking_amount"`
+}
+
+func NewActiveStakingEventV2(
+	stakingTxHashHex string,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
+	stakingAmount uint64,
+) StakingEvent {
+	return StakingEvent{
+		SchemaVersion:             ActiveEventVersion,
+		EventType:                 ActiveStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingAmount:             stakingAmount,
+	}
+}
+
+func NewUnbondingStakingEventV2(
+	stakingTxHashHex string,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
+	stakingAmount uint64,
+) StakingEvent {
+	return StakingEvent{
+		SchemaVersion:             UnbondingEventVersion,
+		EventType:                 UnbondingStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingAmount:             stakingAmount,
+	}
+}
+
+func (e StakingEvent) GetEventType() EventType {
+	return e.EventType
+}
+
+func (e StakingEvent) GetStakingTxHashHex() string {
+	return e.StakingTxHashHex
+}
