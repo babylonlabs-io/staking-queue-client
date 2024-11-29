@@ -92,7 +92,7 @@ func PushEvent[T any](queueClient client.QueueClient, ev T) error {
 	return nil
 }
 
-func (qc *QueueManager) PushStakingEvent(ev *client.ActiveStakingEvent) error {
+func (qc *QueueManager) PushStakingEvent(ev *client.StakingEvent) error {
 	jsonBytes, err := json.Marshal(ev)
 	if err != nil {
 		return err
@@ -109,19 +109,19 @@ func (qc *QueueManager) PushStakingEvent(ev *client.ActiveStakingEvent) error {
 	return nil
 }
 
-func (qc *QueueManager) PushUnbondingEvent(ev *client.UnbondingStakingEvent) error {
+func (qc *QueueManager) PushUnbondingEvent(ev *client.StakingEvent) error {
 	jsonBytes, err := json.Marshal(ev)
 	if err != nil {
 		return err
 	}
 	messageBody := string(jsonBytes)
 
-	qc.logger.Info("pushing unbonding event", zap.String("staking_tx_hash", ev.UnbondingTxHashHex))
+	qc.logger.Info("pushing unbonding event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 	err = qc.UnbondingQueue.SendMessage(context.TODO(), messageBody)
 	if err != nil {
 		return fmt.Errorf("failed to push unbonding event: %w", err)
 	}
-	qc.logger.Info("successfully pushed unbonding event", zap.String("staking_tx_hash", ev.UnbondingTxHashHex))
+	qc.logger.Info("successfully pushed unbonding event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 
 	return nil
 }
@@ -193,40 +193,6 @@ func (qc *QueueManager) PushConfirmedInfoEvent(ev *client.ConfirmedInfoEvent) er
 		return fmt.Errorf("failed to push confirmed info event: %w", err)
 	}
 	qc.logger.Info("successfully pushed confirmed info event", zap.Uint64("height", ev.Height))
-
-	return nil
-}
-
-func (qc *QueueManager) PushActiveEventV2(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
-
-	qc.logger.Info("pushing active event v2", zap.String("tx_hash", ev.StakingTxHashHex))
-	err = qc.StakingQueue.SendMessage(context.TODO(), messageBody)
-	if err != nil {
-		return fmt.Errorf("failed to push active event v2: %w", err)
-	}
-	qc.logger.Info("successfully pushed active event v2", zap.String("tx_hash", ev.StakingTxHashHex))
-
-	return nil
-}
-
-func (qc *QueueManager) PushUnbondingEventV2(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
-
-	qc.logger.Info("pushing unbonding event v2", zap.String("staking_tx_hash", ev.StakingTxHashHex))
-	err = qc.UnbondingQueue.SendMessage(context.TODO(), messageBody)
-	if err != nil {
-		return fmt.Errorf("failed to push unbonding event v2: %w", err)
-	}
-	qc.logger.Info("successfully pushed unbonding event v2", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 
 	return nil
 }
