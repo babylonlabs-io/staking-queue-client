@@ -8,6 +8,7 @@ const (
 	StakingStatsQueueName     string = "staking_stats_queue"
 	BtcInfoQueueName          string = "btc_info_queue"
 	ConfirmedInfoQueueName    string = "confirmed_info_queue"
+	SlashedFpQueueName        string = "slashed_fp_queue"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 	StatsEventType            EventType = 5
 	BtcInfoEventType          EventType = 6
 	ConfirmedInfoEventType    EventType = 7
+	SlashedFpEventType        EventType = 8
 )
 
 // Event schema versions, only increment when the schema changes
@@ -29,6 +31,7 @@ const (
 	StatsEventVersion         int = 1
 	BtcInfoEventVersion       int = 0
 	ConfirmedInfoEventVersion int = 0
+	SlashedFpEventVersion     int = 0
 )
 
 type EventType int
@@ -288,6 +291,14 @@ type StakingEvent struct {
 	StakingAmount             uint64    `json:"staking_amount"`
 }
 
+func (e StakingEvent) GetEventType() EventType {
+	return e.EventType
+}
+
+func (e StakingEvent) GetStakingTxHashHex() string {
+	return e.StakingTxHashHex
+}
+
 func NewActiveStakingEventV2(
 	stakingTxHashHex string,
 	stakerBtcPkHex string,
@@ -320,10 +331,16 @@ func NewUnbondingStakingEventV2(
 	}
 }
 
-func (e StakingEvent) GetEventType() EventType {
-	return e.EventType
+type SlashedFpEvent struct {
+	SchemaVersion            int       `json:"schema_version"`
+	EventType                EventType `json:"event_type"`
+	FinalityProviderBtcPkHex string    `json:"finality_provider_btc_pk_hex"`
 }
 
-func (e StakingEvent) GetStakingTxHashHex() string {
-	return e.StakingTxHashHex
+func NewSlashedFpEventV2(finalityProviderBtcPkHex string) SlashedFpEvent {
+	return SlashedFpEvent{
+		SchemaVersion:            SlashedFpEventVersion,
+		EventType:                SlashedFpEventType,
+		FinalityProviderBtcPkHex: finalityProviderBtcPkHex,
+	}
 }
