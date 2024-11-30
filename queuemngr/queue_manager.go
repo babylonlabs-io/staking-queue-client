@@ -204,6 +204,23 @@ func (qc *QueueManager) PushConfirmedInfoEvent(ev *client.ConfirmedInfoEvent) er
 	return nil
 }
 
+func (qc *QueueManager) PushSlashedFpEvent(ev *client.SlashedFpEvent) error {
+	jsonBytes, err := json.Marshal(ev)
+	if err != nil {
+		return err
+	}
+	messageBody := string(jsonBytes)
+
+	qc.logger.Info("pushing slashed fp event", zap.String("finality_provider_btc_pk_hex", ev.FinalityProviderBtcPkHex))
+	err = qc.SlashedFpQueue.SendMessage(context.TODO(), messageBody)
+	if err != nil {
+		return fmt.Errorf("failed to push slashed fp event: %w", err)
+	}
+	qc.logger.Info("successfully pushed slashed fp event", zap.String("finality_provider_btc_pk_hex", ev.FinalityProviderBtcPkHex))
+
+	return nil
+}
+
 // requeue message
 func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.QueueMessage, queueName string) error {
 	switch queueName {
