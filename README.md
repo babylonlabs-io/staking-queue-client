@@ -38,7 +38,6 @@ const (
     ExpiredStakingQueueName   string = "expired_staking_queue"
     StakingStatsQueueName     string = "staking_stats_queue"
     BtcInfoQueueName          string = "btc_info_queue"
-    SlashedFpQueueName        string = "slashed_fp_queue"
 )
 ```
 

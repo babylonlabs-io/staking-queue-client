@@ -22,7 +22,6 @@ type QueueManager struct {
 	StatsQueue         client.QueueClient
 	BtcInfoQueue       client.QueueClient
 	ConfirmedInfoQueue client.QueueClient
-	SlashedFpQueue     client.QueueClient
 	logger             *zap.Logger
 }
 
@@ -62,11 +61,6 @@ func NewQueueManager(cfg *config.QueueConfig, logger *zap.Logger) (*QueueManager
 		return nil, fmt.Errorf("failed to create confirmed info queue: %w", err)
 	}
 
-	slashedFpQueue, err := client.NewQueueClient(cfg, client.SlashedFpQueueName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create slashed fp queue: %w", err)
-	}
-
 	return &QueueManager{
 		StakingQueue:       stakingQueue,
 		UnbondingQueue:     unbondingQueue,
@@ -75,7 +69,6 @@ func NewQueueManager(cfg *config.QueueConfig, logger *zap.Logger) (*QueueManager
 		StatsQueue:         statsQueue,
 		BtcInfoQueue:       btcInfoQueue,
 		ConfirmedInfoQueue: confirmedInfoQueue,
-		SlashedFpQueue:     slashedFpQueue,
 		logger:             logger.With(zap.String("module", "queue consumer")),
 	}, nil
 }
@@ -204,23 +197,6 @@ func (qc *QueueManager) PushConfirmedInfoEvent(ev *client.ConfirmedInfoEvent) er
 	return nil
 }
 
-func (qc *QueueManager) PushSlashedFpEvent(ev *client.SlashedFpEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
-
-	qc.logger.Info("pushing slashed fp event", zap.String("finality_provider_btc_pk_hex", ev.FinalityProviderBtcPkHex))
-	err = qc.SlashedFpQueue.SendMessage(context.TODO(), messageBody)
-	if err != nil {
-		return fmt.Errorf("failed to push slashed fp event: %w", err)
-	}
-	qc.logger.Info("successfully pushed slashed fp event", zap.String("finality_provider_btc_pk_hex", ev.FinalityProviderBtcPkHex))
-
-	return nil
-}
-
 // requeue message
 func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.QueueMessage, queueName string) error {
 	switch queueName {
@@ -238,8 +214,6 @@ func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.Queue
 		return qc.BtcInfoQueue.ReQueueMessage(ctx, message)
 	case client.ConfirmedInfoQueueName:
 		return qc.ConfirmedInfoQueue.ReQueueMessage(ctx, message)
-	case client.SlashedFpQueueName:
-		return qc.SlashedFpQueue.ReQueueMessage(ctx, message)
 	default:
 		return fmt.Errorf("unknown queue name: %s", queueName)
 	}
