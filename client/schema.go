@@ -1,8 +1,8 @@
 package client
 
 const (
-	ActiveStakingQueueName    string = "active_staking_queue"
-	UnbondingStakingQueueName string = "unbonding_staking_queue"
+	ActiveStakingQueueName    string = "v2_active_staking_queue"
+	UnbondingStakingQueueName string = "v2_unbonding_staking_queue"
 )
 
 const (
