@@ -122,6 +122,23 @@ func (qc *QueueManager) PushWithdrawableStakingEvent(ev *client.StakingEvent) er
 	return nil
 }
 
+func (qc *QueueManager) PushWithdrawnStakingEvent(ev *client.StakingEvent) error {
+	jsonBytes, err := json.Marshal(ev)
+	if err != nil {
+		return err
+	}
+	messageBody := string(jsonBytes)
+
+	qc.logger.Info("pushing withdrawn staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
+	err = qc.WithdrawnStakingQueue.SendMessage(context.TODO(), messageBody)
+	if err != nil {
+		return fmt.Errorf("failed to push withdrawn staking event: %w", err)
+	}
+	qc.logger.Info("successfully pushed withdrawn staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
+
+	return nil
+}
+
 // requeue message
 func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.QueueMessage, queueName string) error {
 	switch queueName {
