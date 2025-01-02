@@ -18,6 +18,7 @@ type QueueManager struct {
 	ActiveStakingQueue       client.QueueClient
 	UnbondingStakingQueue    client.QueueClient
 	WithdrawableStakingQueue client.QueueClient
+	WithdrawnStakingQueue    client.QueueClient
 	logger                   *zap.Logger
 }
 
@@ -37,10 +38,16 @@ func NewQueueManager(cfg *config.QueueConfig, logger *zap.Logger) (*QueueManager
 		return nil, fmt.Errorf("failed to create withdrawable staking queue: %w", err)
 	}
 
+	withdrawnStakingQueue, err := client.NewQueueClient(cfg, client.WithdrawnStakingQueueName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create withdrawn staking queue: %w", err)
+	}
+
 	return &QueueManager{
 		ActiveStakingQueue:       activeStakingQueue,
 		UnbondingStakingQueue:    unbondingStakingQueue,
 		WithdrawableStakingQueue: withdrawableStakingQueue,
+		WithdrawnStakingQueue:    withdrawnStakingQueue,
 		logger:                   logger.With(zap.String("module", "queue consumer")),
 	}, nil
 }

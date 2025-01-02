@@ -4,12 +4,14 @@ const (
 	ActiveStakingQueueName       string = "v2_active_staking_queue"
 	UnbondingStakingQueueName    string = "v2_unbonding_staking_queue"
 	WithdrawableStakingQueueName string = "v2_withdrawable_staking_queue"
+	WithdrawnStakingQueueName    string = "v2_withdrawn_staking_queue"
 )
 
 const (
 	ActiveStakingEventType       EventType = 1
 	UnbondingStakingEventType    EventType = 2
 	WithdrawableStakingEventType EventType = 3
+	WithdrawnStakingEventType    EventType = 4
 )
 
 // Event schema versions, only increment when the schema changes
@@ -17,6 +19,7 @@ const (
 	ActiveStakingEventVersion       int = 0
 	UnbondingStakingEventVersion    int = 0
 	WithdrawableStakingEventVersion int = 0
+	WithdrawnStakingEventVersion    int = 0
 )
 
 type EventType int
@@ -84,6 +87,22 @@ func NewWithdrawableStakingEvent(
 	return StakingEvent{
 		SchemaVersion:             WithdrawableStakingEventVersion,
 		EventType:                 WithdrawableStakingEventType,
+		StakingTxHashHex:          stakingTxHashHex,
+		StakerBtcPkHex:            stakerBtcPkHex,
+		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
+		StakingAmount:             stakingAmount,
+	}
+}
+
+func NewWithdrawnStakingEvent(
+	stakingTxHashHex string,
+	stakerBtcPkHex string,
+	finalityProviderBtcPksHex []string,
+	stakingAmount uint64,
+) StakingEvent {
+	return StakingEvent{
+		SchemaVersion:             WithdrawnStakingEventVersion,
+		EventType:                 WithdrawnStakingEventType,
 		StakingTxHashHex:          stakingTxHashHex,
 		StakerBtcPkHex:            stakerBtcPkHex,
 		FinalityProviderBtcPksHex: finalityProviderBtcPksHex,
