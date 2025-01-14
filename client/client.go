@@ -12,12 +12,12 @@ type QueueMessage struct {
 	RetryAttempts int32
 }
 
-func (m QueueMessage) IncrementRetryAttempts() int32 {
+func (m *QueueMessage) IncrementRetryAttempts() int32 {
 	m.RetryAttempts++
 	return m.RetryAttempts
 }
 
-func (m QueueMessage) GetRetryAttempts() int32 {
+func (m *QueueMessage) GetRetryAttempts() int32 {
 	return m.RetryAttempts
 }
 
