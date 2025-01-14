@@ -29,19 +29,14 @@ type EventMessage interface {
 	GetStakingTxHashHex() string
 }
 
-type StateRecord struct {
-	State    string `json:"state"`
-	SubState string `json:"sub_state,omitempty"`
-}
-
 type StakingEvent struct {
-	SchemaVersion             int           `json:"schema_version"`
-	EventType                 EventType     `json:"event_type"`
-	StakingTxHashHex          string        `json:"staking_tx_hash_hex"`
-	StakerBtcPkHex            string        `json:"staker_btc_pk_hex"`
-	FinalityProviderBtcPksHex []string      `json:"finality_provider_btc_pks_hex"`
-	StakingAmount             uint64        `json:"staking_amount"`
-	StateHistory              []StateRecord `json:"state_history"`
+	SchemaVersion             int       `json:"schema_version"`
+	EventType                 EventType `json:"event_type"`
+	StakingTxHashHex          string    `json:"staking_tx_hash_hex"`
+	StakerBtcPkHex            string    `json:"staker_btc_pk_hex"`
+	FinalityProviderBtcPksHex []string  `json:"finality_provider_btc_pks_hex"`
+	StakingAmount             uint64    `json:"staking_amount"`
+	StateHistory              []string  `json:"state_history"`
 }
 
 func (e StakingEvent) GetEventType() EventType {
@@ -57,7 +52,7 @@ func NewActiveStakingEvent(
 	stakerBtcPkHex string,
 	finalityProviderBtcPksHex []string,
 	stakingAmount uint64,
-	stateHistory []StateRecord,
+	stateHistory []string,
 ) StakingEvent {
 	return StakingEvent{
 		SchemaVersion:             ActiveStakingEventVersion,
@@ -75,7 +70,7 @@ func NewUnbondingStakingEvent(
 	stakerBtcPkHex string,
 	finalityProviderBtcPksHex []string,
 	stakingAmount uint64,
-	stateHistory []StateRecord,
+	stateHistory []string,
 ) StakingEvent {
 	return StakingEvent{
 		SchemaVersion:             UnbondingStakingEventVersion,
@@ -93,7 +88,7 @@ func NewWithdrawableStakingEvent(
 	stakerBtcPkHex string,
 	finalityProviderBtcPksHex []string,
 	stakingAmount uint64,
-	stateHistory []StateRecord,
+	stateHistory []string,
 ) StakingEvent {
 	return StakingEvent{
 		SchemaVersion:             WithdrawableStakingEventVersion,
@@ -111,7 +106,7 @@ func NewWithdrawnStakingEvent(
 	stakerBtcPkHex string,
 	finalityProviderBtcPksHex []string,
 	stakingAmount uint64,
-	stateHistory []StateRecord,
+	stateHistory []string,
 ) StakingEvent {
 	return StakingEvent{
 		SchemaVersion:             WithdrawnStakingEventVersion,
