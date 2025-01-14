@@ -10,9 +10,9 @@ const (
 	defaultQueuePassword            = "password"
 	defaultQueueUrl                 = "localhost:5672"
 	defaultQueueType                = QuorumQueueType
-	defaultQueueProcessingTimeout   = time.Duration(5) * time.Second
+	defaultQueueProcessingTimeout   = 5 * time.Second
 	defaultQueueMsgMaxRetryAttempts = 10
-	defaultReQueueDelayTime         = time.Duration(5) * time.Second
+	defaultReQueueDelayTime         = 5 * time.Second
 )
 
 const (
