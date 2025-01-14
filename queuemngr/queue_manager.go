@@ -124,14 +124,16 @@ func (qc *QueueManager) Ping() error {
 
 	for _, queue := range queues {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
 
 		err := queue.Ping(ctx)
 		if err != nil {
 			qc.logger.Error("ping failed", zap.String("queue", queue.GetQueueName()), zap.Error(err))
+			cancel()
 			return err
 		}
+
 		qc.logger.Info("ping successful", zap.String("queue", queue.GetQueueName()))
+		cancel()
 	}
 	return nil
 }
