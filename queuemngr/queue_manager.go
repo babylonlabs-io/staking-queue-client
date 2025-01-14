@@ -19,6 +19,7 @@ type QueueManager struct {
 	UnbondingStakingQueue    client.QueueClient
 	WithdrawableStakingQueue client.QueueClient
 	WithdrawnStakingQueue    client.QueueClient
+	SlashedStakingQueue      client.QueueClient
 	logger                   *zap.Logger
 }
 
@@ -43,11 +44,17 @@ func NewQueueManager(cfg *config.QueueConfig, logger *zap.Logger) (*QueueManager
 		return nil, fmt.Errorf("failed to create withdrawn staking queue: %w", err)
 	}
 
+	slashedStakingQueue, err := client.NewQueueClient(cfg, client.SlashedStakingQueueName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create slashed staking queue: %w", err)
+	}
+
 	return &QueueManager{
 		ActiveStakingQueue:       activeStakingQueue,
 		UnbondingStakingQueue:    unbondingStakingQueue,
 		WithdrawableStakingQueue: withdrawableStakingQueue,
 		WithdrawnStakingQueue:    withdrawnStakingQueue,
+		SlashedStakingQueue:      slashedStakingQueue,
 		logger:                   logger.With(zap.String("module", "queue consumer")),
 	}, nil
 }
@@ -139,6 +146,23 @@ func (qc *QueueManager) PushWithdrawnStakingEvent(ev *client.StakingEvent) error
 	return nil
 }
 
+func (qc *QueueManager) PushSlashedStakingEvent(ev *client.StakingEvent) error {
+	jsonBytes, err := json.Marshal(ev)
+	if err != nil {
+		return err
+	}
+	messageBody := string(jsonBytes)
+
+	qc.logger.Info("pushing slashed staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
+	err = qc.SlashedStakingQueue.SendMessage(context.TODO(), messageBody)
+	if err != nil {
+		return fmt.Errorf("failed to push slashed staking event: %w", err)
+	}
+	qc.logger.Info("successfully pushed slashed staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
+
+	return nil
+}
+
 // requeue message
 func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.QueueMessage, queueName string) error {
 	switch queueName {
@@ -148,6 +172,10 @@ func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.Queue
 		return qc.UnbondingStakingQueue.ReQueueMessage(ctx, message)
 	case client.WithdrawableStakingQueueName:
 		return qc.WithdrawableStakingQueue.ReQueueMessage(ctx, message)
+	case client.WithdrawnStakingQueueName:
+		return qc.WithdrawnStakingQueue.ReQueueMessage(ctx, message)
+	case client.SlashedStakingQueueName:
+		return qc.SlashedStakingQueue.ReQueueMessage(ctx, message)
 	default:
 		return fmt.Errorf("unknown queue name: %s", queueName)
 	}
@@ -163,6 +191,14 @@ func (qc *QueueManager) Stop() error {
 	}
 
 	if err := qc.WithdrawableStakingQueue.Stop(); err != nil {
+		return err
+	}
+
+	if err := qc.WithdrawnStakingQueue.Stop(); err != nil {
+		return err
+	}
+
+	if err := qc.SlashedStakingQueue.Stop(); err != nil {
 		return err
 	}
 
