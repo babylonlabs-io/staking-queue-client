@@ -7,7 +7,9 @@ import (
 )
 
 func TestIncrementRetryAttempts(t *testing.T) {
+	const expected int32 = 1
+
 	msg := client.QueueMessage{}
-	msg.IncrementRetryAttempts()
-	assert.Equal(t, int32(1), msg.GetRetryAttempts())
+	assert.Equal(t, expected, msg.IncrementRetryAttempts())
+	assert.Equal(t, expected, msg.GetRetryAttempts())
 }
