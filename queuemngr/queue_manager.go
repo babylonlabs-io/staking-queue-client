@@ -131,7 +131,6 @@ func (qc *QueueManager) Ping() error {
 			qc.logger.Error("ping failed", zap.String("queue", queue.GetQueueName()), zap.Error(err))
 			return err
 		}
-
 		qc.logger.Info("ping successful", zap.String("queue", queue.GetQueueName()))
 	}
 	return nil
