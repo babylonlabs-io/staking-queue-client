@@ -148,6 +148,8 @@ func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.Queue
 		return qc.UnbondingStakingQueue.ReQueueMessage(ctx, message)
 	case client.WithdrawableStakingQueueName:
 		return qc.WithdrawableStakingQueue.ReQueueMessage(ctx, message)
+	case client.WithdrawnStakingQueueName:
+		return qc.WithdrawnStakingQueue.ReQueueMessage(ctx, message)
 	default:
 		return fmt.Errorf("unknown queue name: %s", queueName)
 	}
@@ -166,6 +168,10 @@ func (qc *QueueManager) Stop() error {
 		return err
 	}
 
+	if err := qc.WithdrawnStakingQueue.Stop(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -175,6 +181,7 @@ func (qc *QueueManager) Ping() error {
 		qc.ActiveStakingQueue,
 		qc.UnbondingStakingQueue,
 		qc.WithdrawableStakingQueue,
+		qc.WithdrawnStakingQueue,
 	}
 
 	for _, queue := range queues {
