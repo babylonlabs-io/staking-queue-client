@@ -56,14 +56,14 @@ func (qc *QueueManager) Start() error {
 	return nil
 }
 
-func PushEvent[T any](queueClient client.QueueClient, ev T) error {
+func pushEvent[T any](ctx context.Context, queueClient client.QueueClient, ev T) error {
 	jsonBytes, err := json.Marshal(ev)
 	if err != nil {
 		return err
 	}
 	messageBody := string(jsonBytes)
 
-	err = queueClient.SendMessage(context.TODO(), messageBody)
+	err = queueClient.SendMessage(ctx, messageBody)
 	if err != nil {
 		return fmt.Errorf("failed to push event: %w", err)
 	}
@@ -71,71 +71,51 @@ func PushEvent[T any](queueClient client.QueueClient, ev T) error {
 	return nil
 }
 
-func (qc *QueueManager) PushActiveStakingEvent(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
+func (qc *QueueManager) PushActiveStakingEvent(ctx context.Context, ev *client.StakingEvent) error {
+	qc.logger.Debug("pushing active staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 
-	qc.logger.Info("pushing active staking event", zap.String("tx_hash", ev.StakingTxHashHex))
-	err = qc.ActiveStakingQueue.SendMessage(context.TODO(), messageBody)
+	err := pushEvent(ctx, qc.ActiveStakingQueue, ev)
 	if err != nil {
 		return fmt.Errorf("failed to push staking event: %w", err)
 	}
-	qc.logger.Info("successfully pushed active staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 
+	qc.logger.Debug("successfully pushed active staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 	return nil
 }
 
-func (qc *QueueManager) PushUnbondingStakingEvent(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
+func (qc *QueueManager) PushUnbondingStakingEvent(ctx context.Context, ev *client.StakingEvent) error {
+	qc.logger.Debug("pushing unbonding staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 
-	qc.logger.Info("pushing unbonding staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
-	err = qc.UnbondingStakingQueue.SendMessage(context.TODO(), messageBody)
+	err := pushEvent(ctx, qc.UnbondingStakingQueue, ev)
 	if err != nil {
-		return fmt.Errorf("failed to push unbonding staking event: %w", err)
+		return fmt.Errorf("failed to push staking event: %w", err)
 	}
-	qc.logger.Info("successfully pushed unbonding staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 
+	qc.logger.Debug("successfully pushed unbonding staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 	return nil
 }
 
-func (qc *QueueManager) PushWithdrawableStakingEvent(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
+func (qc *QueueManager) PushWithdrawableStakingEvent(ctx context.Context, ev *client.StakingEvent) error {
+	qc.logger.Debug("pushing withdrawable staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 
-	qc.logger.Info("pushing withdrawable staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
-	err = qc.WithdrawableStakingQueue.SendMessage(context.TODO(), messageBody)
+	err := pushEvent(ctx, qc.WithdrawableStakingQueue, ev)
 	if err != nil {
-		return fmt.Errorf("failed to push withdrawable staking event: %w", err)
+		return fmt.Errorf("failed to push staking event: %w", err)
 	}
-	qc.logger.Info("successfully pushed withdrawable staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 
+	qc.logger.Debug("successfully pushed withdrawable staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 	return nil
 }
 
-func (qc *QueueManager) PushWithdrawnStakingEvent(ev *client.StakingEvent) error {
-	jsonBytes, err := json.Marshal(ev)
-	if err != nil {
-		return err
-	}
-	messageBody := string(jsonBytes)
+func (qc *QueueManager) PushWithdrawnStakingEvent(ctx context.Context, ev *client.StakingEvent) error {
+	qc.logger.Debug("pushing withdrawn staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 
-	qc.logger.Info("pushing withdrawn staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
-	err = qc.WithdrawnStakingQueue.SendMessage(context.TODO(), messageBody)
+	err := pushEvent(ctx, qc.WithdrawnStakingQueue, ev)
 	if err != nil {
-		return fmt.Errorf("failed to push withdrawn staking event: %w", err)
+		return fmt.Errorf("failed to push staking event: %w", err)
 	}
-	qc.logger.Info("successfully pushed withdrawn staking event", zap.String("staking_tx_hash", ev.StakingTxHashHex))
 
+	qc.logger.Debug("successfully pushed withdrawn staking event", zap.String("tx_hash", ev.StakingTxHashHex))
 	return nil
 }
 
