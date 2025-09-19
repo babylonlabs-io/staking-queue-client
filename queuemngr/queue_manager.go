@@ -8,6 +8,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"errors"
 	"github.com/babylonlabs-io/staking-queue-client/client"
 	"github.com/babylonlabs-io/staking-queue-client/config"
 )
@@ -94,15 +95,12 @@ func (qc *QueueManager) ReQueueMessage(ctx context.Context, message client.Queue
 }
 
 func (qc *QueueManager) Stop() error {
-	if err := qc.ActiveStakingQueue.Stop(); err != nil {
-		return err
-	}
+	var activeErr, unbondingErr error
 
-	if err := qc.UnbondingStakingQueue.Stop(); err != nil {
-		return err
-	}
+	activeErr = qc.ActiveStakingQueue.Stop()
+	unbondingErr = qc.UnbondingStakingQueue.Stop()
 
-	return nil
+	return errors.Join(activeErr, unbondingErr)
 }
 
 // Ping checks the health of the RabbitMQ infrastructure.
