@@ -8,6 +8,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 
+	"errors"
 	"github.com/babylonlabs-io/staking-queue-client/config"
 )
 
@@ -262,16 +263,13 @@ func (c *RabbitMqClient) SendMessage(ctx context.Context, messageBody string) er
 
 // Stop stops the message receiving process.
 func (c *RabbitMqClient) Stop() error {
-	if err := c.channel.Close(); err != nil {
-		return err
-	}
-	if err := c.connection.Close(); err != nil {
-		return err
-	}
+	var channelErr, connectionErr error
 
+	channelErr = c.channel.Close()
+	connectionErr = c.connection.Close()
 	close(c.stopCh)
 
-	return nil
+	return errors.Join(channelErr, connectionErr)
 }
 
 func (c *RabbitMqClient) GetQueueName() string {
